@@ -1,5 +1,6 @@
-const CHOICES = ["rock", "paper", "scissors"];
-let playerChoices = document.querySelectorAll(".choice_btn");
+// VARIABLES
+const CHOICES = ["✊", "🖐️", "✌️"];
+const playerChoices = document.querySelectorAll(".choice_btn");
 
 const playerScoreOutput = document.querySelector(".player_score");
 const computerScoreOutput = document.querySelector(".computer_score");
@@ -7,101 +8,104 @@ const computerScoreOutput = document.querySelector(".computer_score");
 const playerChoiceOutput = document.querySelector(".player_choice");
 const computerChoiceOutput = document.querySelector(".computer_choice");
 
+const modalBtn = document.querySelector(".modal_btn");
+const modal = document.querySelector(".modal");
+const modalText = document.querySelector(".modal__text");
+
 let playerScore = 0;
 let computerScore = 0;
 
 // GET PLAYER INPUT
-playerChoices.forEach((choice) => {
+playerChoices.forEach((choice) =>
 	choice.addEventListener("click", (event) => {
 		playerChoiceOutput.textContent = choice.textContent;
 		let playerSelectedChoice = playerChoiceOutput.textContent;
 
 		generateRandomComputerChoice(playerSelectedChoice);
-	});
-});
+	})
+);
 
 // GENERATE RANDOM COMPUTER OUTPUT
 function generateRandomComputerChoice(playerSelectedChoice) {
-	computerChoiceOutput.textContent =
-		CHOICES[Math.floor(Math.random() * CHOICES.length)];
+	computerChoiceOutput.textContent = CHOICES[Math.floor(Math.random() * 3)];
 	let computerGeneratedChoice = computerChoiceOutput.textContent;
 
-	getWinner(playerSelectedChoice, computerGeneratedChoice);
+	updateScore(playerSelectedChoice, computerGeneratedChoice);
 }
 
-// GET WINNER
-function getWinner(playerSelectedChoice, computerGeneratedChoice) {
-	let winner;
+// UPDATE SCORE AND UPDATE ROUND MESSAGE
+function updateScore(playerSelectedChoice, computerGeneratedChoice) {
+	let winner = "";
 
 	if (
-		(playerSelectedChoice === "rock" && computerGeneratedChoice === "paper") ||
-		(playerSelectedChoice === "paper" &&
-			computerGeneratedChoice === "scissors") ||
-		(playerSelectedChoice === "scissors" && computerGeneratedChoice === "rock")
+		(playerSelectedChoice === "✊" && computerGeneratedChoice === "🖐️") ||
+		(playerSelectedChoice === "🖐️" && computerGeneratedChoice === "✌️") ||
+		(playerSelectedChoice === "✌️" && computerGeneratedChoice === "✊")
 	) {
-		winner = "computer";
+		if (computerScore <= 5 || playerScore <= 5) {
+			winner = "computer";
+			computerScore++;
+			computerScoreOutput.textContent = `COMPUTER: ${computerScore}`;
+		} else {
+			return;
+		}
 	} else if (
-		(computerGeneratedChoice === "rock" && playerSelectedChoice === "paper") ||
-		(computerGeneratedChoice === "paper" &&
-			playerSelectedChoice === "scissors") ||
-		(computerGeneratedChoice === "scissors" && playerSelectedChoice === "rock")
+		(computerGeneratedChoice === "✊" && playerSelectedChoice === "🖐️") ||
+		(computerGeneratedChoice === "🖐️" && playerSelectedChoice === "✌️") ||
+		(computerGeneratedChoice === "✌️" && playerSelectedChoice === "✊")
 	) {
-		winner = "player";
+		if (computerScore <= 5 || playerScore <= 5) {
+			winner = "player";
+			playerScore++;
+			playerScoreOutput.textContent = `PLAYER: ${playerScore}`;
+		} else {
+			return;
+		}
 	} else {
 		winner = "";
+		computerScore = computerScore;
+		playerScore = playerScore;
 	}
 
-	displayRoundResult(winner, playerSelectedChoice, computerGeneratedChoice);
-}
-// DISPLAY ROUND RESULTS
-function displayRoundResult(
-	winner,
-	playerSelectedChoice,
-	computerGeneratedChoice
-) {
-	const resultTextTitle = document.querySelector(".main__h2");
-	const resultTextSubtitile = document.querySelector(".main__p");
+	const mainTextTitle = document.querySelector(".main__h2");
+	const mainTextSubtitle = document.querySelector(".main__p");
 
-	if (winner === "player") {
-		resultTextTitle.textContent = "player wins";
-		resultTextSubtitile.textContent = `${playerSelectedChoice} beats ${computerGeneratedChoice}`;
-	} else if (winner === "computer") {
-		resultTextTitle.textContent = "computer wins";
-		resultTextSubtitile.textContent = `${playerSelectedChoice} looses to ${computerGeneratedChoice}`;
+	if (winner === "") {
+		mainTextTitle.textContent = "No one wins !";
+		mainTextSubtitle.textContent = "Both selections are the same";
 	} else {
-		resultTextTitle.textContent = "draw";
-		resultTextSubtitile.textContent = `${playerSelectedChoice} is same as ${computerGeneratedChoice}`;
-	}
-	updateScores(winner);
-}
+		mainTextTitle.textContent = `${winner} wins !`;
 
-// UPDATE SCORES
-function updateScores(winner) {
-	playerScoreOutput.textContent = `PLAYER: ${playerScore}`;
-	computerScoreOutput.textContent = `COMPUTER: ${computerScore}`;
-
-	if (playerScore === 5 || computerScore === 5) {
-		return openModal();
-	} else {
 		if (winner === "player") {
-			playerScore++;
+			mainTextSubtitle.textContent = `${playerSelectedChoice} beats ${computerGeneratedChoice}`;
 		} else if (winner === "computer") {
-			computerScore++;
+			mainTextSubtitle.textContent = `${computerGeneratedChoice} beats ${playerSelectedChoice}`;
 		} else {
-			playerScore;
-			computerScore;
+			return;
 		}
 	}
+
+	stopGame(playerScore, computerScore);
 }
 
-function openModal() {
-	document.body.style.backgroundColor = "black";
-	restartGame();
+// STOP GAME AND OPEN MODAL
+function stopGame(playerScore, computerScore) {
+	if (playerScore === 5 || computerScore === 5) {
+		playerChoices.forEach((choice) => {
+			choice.classList.add("control_off");
+		});
+
+		modal.classList.add("active");
+		modalBtn.addEventListener("click", (e) => {
+			modal.classList.remove("active");
+			restartGame();
+		});
+	} else {
+		return;
+	}
 }
+
 // RESTART GAME
 function restartGame() {
-	document.body.style.backgroundColor = "white";
-
-	playerScore = 0;
-	computerScore = 0;
+	location.reload();
 }
